@@ -7,6 +7,6 @@ services:
     container_name: echo_api
     env_file: .env
     volumes:
-      - .:/api
+      - .:/app
     ports:
       - 8000:8000

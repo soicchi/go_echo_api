@@ -3,10 +3,10 @@
 path = ./...
 
 go_fmt:
-	docker compose run --rm api go fmt ./...
+	docker compose run --rm api go fmt ${path}
 
 go_vet:
-	docker compose run --rm api go vet ./...
+	docker compose run --rm api go vet ${path}
 
 go_get:
 	docker compose run --rm api go get ${pkg}

@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"go_echo_api/routes"
 )
 
 func main() {
-	fmt.Println("Hello World")
+	e := routes.SetupRoutes()
+	e.Logger.Fatal(e.Start(":8000"))
 }
