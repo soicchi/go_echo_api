@@ -24,7 +24,7 @@ func TestHelloHandler(t *testing.T) {
 	}
 
 	assert.Equal(t, http.StatusOK, rec.Code)
-	
+
 	expectedJSON := utils.GenerateExpectedJSON("Hello World")
 	assert.Equal(t, string(expectedJSON), rec.Body.String())
 }
