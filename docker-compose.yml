@@ -3,6 +3,7 @@ services:
   api:
     build:
       context: .
+      target: dev
     container_name: echo_api
     env_file: .env
     volumes:
