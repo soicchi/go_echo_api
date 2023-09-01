@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  api:
+    build:
+      context: .
+    container_name: echo_api
+    env_file: .env
+    volumes:
+      - .:/api
+    ports:
+      - 8000:8000
