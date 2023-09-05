@@ -3,6 +3,8 @@ module go_echo_api
 go 1.21.0
 
 require (
+	github.com/aws/aws-lambda-go v1.41.0
+	github.com/awslabs/aws-lambda-go-api-proxy v0.14.0
 	github.com/labstack/echo/v4 v4.11.1
 	github.com/stretchr/testify v1.8.1
 )
