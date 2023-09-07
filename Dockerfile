@@ -4,7 +4,7 @@ COPY ./src/go.mod ./src/go.sum ./
 RUN go mod download
 COPY ./src .
 EXPOSE 8000
-CMD ["go", "run", "./cmd/go_echo_api/main.go"]
+CMD ["go", "run", "./cmd/dev/main.go"]
 
 FROM golang:1.21.0 AS build
 WORKDIR /app
