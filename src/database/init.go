@@ -3,6 +3,8 @@ package database
 import (
 	"fmt"
 
+	"go_echo_api/models"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -35,7 +37,15 @@ func (db DBConfig) CreateDSN() string {
 func DBConnect(dsn string) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 	return db, nil
+}
+
+func DBMigrate(db *gorm.DB) error {
+	err := db.AutoMigrate(&models.User{})
+	if err != nil {
+		return fmt.Errorf("failed to migrate database: %w", err)
+	}
+	return nil
 }

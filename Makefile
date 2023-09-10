@@ -1,6 +1,6 @@
 .PHONY: go_fmt go_vet go_get go_tidy go_test ecr_push
 
-path = ./...
+path = ./cmd/dev/main.go
 aws_region = ap-northeast-1
 
 go_fmt:

@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"go_echo_api/controllers"
 	"go_echo_api/database"
 	"go_echo_api/routes"
 
@@ -26,14 +27,20 @@ func init() {
 		os.Getenv("DB_PORT"),
 	)
 	dsn := dbConfig.CreateDSN()
-	_, err := database.DBConnect(dsn)
+	db, err := database.DBConnect(dsn)
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Database migration
+	if err := database.DBMigrate(db); err != nil {
 		log.Fatal(err)
 	}
 
 	log.Println("Database connection established")
 
-	e := routes.SetupRoutes()
+	h := controllers.NewHandler(db)
+	e := routes.SetupRoutes(h)
 	echoLambda = echoadapter.New(e)
 }
 
