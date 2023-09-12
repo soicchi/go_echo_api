@@ -23,7 +23,7 @@ module "go_api" {
   create_current_version_allowed_triggers = false
 
   environment_variables = {
-    DB_NAME     = "postgres"
+    DB_NAME     = module.rds.db_instance_name
     DB_HOST     = module.rds_proxy.proxy_target_endpoint
     DB_PORT     = module.rds_proxy.proxy_target_port
     DB_USER     = "postgres"
@@ -37,7 +37,26 @@ module "go_api" {
     }
   }
 
-  vpc_subnet_ids = module.vpc.private_subnets
+  vpc_subnet_ids         = module.vpc.private_subnets
+  vpc_security_group_ids = [module.lambda_sg.security_group_id]
+  attach_network_policy  = true
+}
+
+module "lambda_sg" {
+  # https://registry.terraform.io/modules/terraform-aws-modules/security-group/aws/latest
+  source = "terraform-aws-modules/security-group/aws"
+
+  name        = "go-echo-api"
+  description = "Security group for Lambda"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress_cidr_blocks      = ["0.0.0.0/0"]
+  ingress_ipv6_cidr_blocks = ["::/0"]
+  ingress_rules            = ["all-all"]
+
+  egress_cidr_blocks      = ["0.0.0.0/0"]
+  egress_ipv6_cidr_blocks = ["::/0"]
+  egress_rules            = ["all-all"]
 }
 
 module "api_gateway" {
@@ -60,7 +79,7 @@ module "api_gateway" {
   }
 
   integrations = {
-    "ANY /" = {
+    "ANY /{proxy+}" = {
       lambda_arn             = module.go_api.lambda_function_arn
       payload_format_version = "2.0"
       timeout_milliseconds   = 30000
@@ -82,9 +101,9 @@ module "rds_proxy" {
   # https://registry.terraform.io/modules/terraform-aws-modules/rds-proxy/aws/latest
   source = "terraform-aws-modules/rds-proxy/aws"
 
-  name          = "go-echo-api"
-  iam_role_name = "go-echo-api-rds-proxy-role"
-  vpc_subnet_ids = module.vpc.private_subnets
+  name                   = "go-echo-api"
+  iam_role_name          = "go-echo-api-rds-proxy-role"
+  vpc_subnet_ids         = module.vpc.private_subnets
   vpc_security_group_ids = [module.rds_proxy_sg.security_group_id]
 
   engine_family = "POSTGRESQL"
@@ -93,6 +112,7 @@ module "rds_proxy" {
   auth = {
     "postgres" = {
       secret_arn = module.secret_manager.secret_arn
+      iam_auth = "REQUIRED"
     }
   }
 
@@ -108,7 +128,12 @@ module "rds_proxy_sg" {
   description = "Security group for RDS Proxy"
   vpc_id      = module.vpc.vpc_id
 
-  ingress_cidr_blocks = module.vpc.private_subnets_cidr_blocks
+  ingress_with_source_security_group_id = [
+    {
+      rule                     = "postgresql-tcp"
+      source_security_group_id = module.lambda_sg.security_group_id
+    }
+  ]
 
   egress_cidr_blocks      = ["0.0.0.0/0"]
   egress_ipv6_cidr_blocks = ["::/0"]
@@ -130,7 +155,6 @@ module "rds" {
 
   db_name  = "postgres"
   username = "postgres"
-  password = "password"
   port     = 5432
 
   max_allocated_storage           = 100
@@ -140,12 +164,30 @@ module "rds" {
   # backup_window           = "17:00-17:30"
   # backup_retention_period = 5
 
-  iam_database_authentication_enabled = true
-
-  vpc_security_group_ids = [module.rds_proxy_sg.security_group_id]
+  vpc_security_group_ids = [module.rds_sg.security_group_id]
 
   create_db_subnet_group = true
   subnet_ids             = module.vpc.private_subnets
+}
+
+module "rds_sg" {
+  # https://registry.terraform.io/modules/terraform-aws-modules/security-group/aws/latest
+  source = "terraform-aws-modules/security-group/aws"
+
+  name        = "go-echo-api"
+  description = "Security group for RDS Proxy"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress_with_source_security_group_id = [
+    {
+      rule                     = "postgresql-tcp"
+      source_security_group_id = module.lambda_sg.security_group_id
+    }
+  ]
+
+  egress_cidr_blocks      = ["0.0.0.0/0"]
+  egress_ipv6_cidr_blocks = ["::/0"]
+  egress_rules            = ["all-all"]
 }
 
 module "secret_manager" {
