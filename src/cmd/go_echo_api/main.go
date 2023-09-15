@@ -26,6 +26,7 @@ func init() {
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
+		"require",
 	)
 	dsn := dbConfig.CreateDSN()
 	db, err := database.DBConnect(dsn)

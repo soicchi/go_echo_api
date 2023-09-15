@@ -17,6 +17,7 @@ func main() {
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
+		"disable",
 	)
 	dsn := dbConfig.CreateDSN()
 	db, err := database.DBConnect(dsn)

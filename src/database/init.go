@@ -15,22 +15,24 @@ type DBConfig struct {
 	Password string
 	Host     string
 	Port     string
+	SSLMode  string
 }
 
-func NewDBConfig(name string, userName string, password string, host string, port string) *DBConfig {
+func NewDBConfig(name string, userName string, password string, host string, port string, sslMode string) *DBConfig {
 	return &DBConfig{
 		Name:     name,
 		UserName: userName,
 		Password: password,
 		Host:     host,
 		Port:     port,
+		SSLMode:  sslMode,
 	}
 }
 
 func (db DBConfig) CreateDSN() string {
 	return fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		db.Host, db.UserName, db.Password, db.Name, db.Port,
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+		db.Host, db.UserName, db.Password, db.Name, db.Port, db.SSLMode,
 	)
 }
 
