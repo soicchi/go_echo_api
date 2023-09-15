@@ -24,7 +24,7 @@ module "go_api" {
 
   environment_variables = {
     DB_NAME     = module.rds.db_instance_name
-    DB_HOST     = module.rds_proxy.proxy_target_endpoint
+    DB_HOST     = module.rds_proxy.proxy_endpoint
     DB_PORT     = module.rds_proxy.proxy_target_port
     DB_USER     = "postgres"
     DB_PASSWORD = "password"
@@ -112,7 +112,7 @@ module "rds_proxy" {
   auth = {
     "postgres" = {
       secret_arn = module.secret_manager.secret_arn
-      iam_auth = "REQUIRED"
+      iam_auth   = "DISABLED"
     }
   }
 
@@ -155,11 +155,13 @@ module "rds" {
 
   db_name  = "postgres"
   username = "postgres"
+  password = "password"
   port     = 5432
 
   max_allocated_storage           = 100
   enabled_cloudwatch_logs_exports = ["postgresql"]
   storage_encrypted               = false
+  manage_master_user_password     = false
 
   # backup_window           = "17:00-17:30"
   # backup_retention_period = 5
@@ -182,6 +184,10 @@ module "rds_sg" {
     {
       rule                     = "postgresql-tcp"
       source_security_group_id = module.lambda_sg.security_group_id
+    },
+    {
+      rule                     = "postgresql-tcp"
+      source_security_group_id = module.rds_proxy_sg.security_group_id
     }
   ]
 
