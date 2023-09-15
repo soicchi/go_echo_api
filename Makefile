@@ -4,7 +4,7 @@ path = ./cmd/dev/main.go
 aws_region = ap-northeast-1
 
 go_fmt:
-	docker compose run --rm  api go fmt ${path}
+	docker compose run --rm  api go fmt ./...
 
 go_vet:
 	docker compose run --rm api go vet ${path}

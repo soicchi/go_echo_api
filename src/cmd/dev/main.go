@@ -10,8 +10,6 @@ import (
 )
 
 func main() {
-	log.Println("Starting Lambda")
-
 	// Database connection
 	dbConfig := database.NewDBConfig(
 		os.Getenv("DB_NAME"),
@@ -26,12 +24,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	log.Println("Database connection established")
+
 	// Database migration
 	if err := database.DBMigrate(db); err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println("Database connection established")
+	log.Println("Database migration completed")
 
 	h := controllers.NewHandler(db)
 	e := routes.SetupRoutes(h)
