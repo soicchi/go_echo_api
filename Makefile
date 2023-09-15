@@ -1,10 +1,10 @@
 .PHONY: go_fmt go_vet go_get go_tidy go_test ecr_push
 
-path = ./cmd/dev/main.go
+path = ./...
 aws_region = ap-northeast-1
 
 go_fmt:
-	docker compose run --rm  api go fmt ./...
+	docker compose run --rm  api go fmt ${path}
 
 go_vet:
 	docker compose run --rm api go vet ${path}

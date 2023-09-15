@@ -16,6 +16,9 @@ func SetupRoutes(h *controllers.Handler) *echo.Echo {
 
 	users := e.Group("/users")
 	users.POST("/", h.CreateUserHandler)
+	users.GET("/", h.GetUsersHandler)
+	users.PUT("/:id", h.UpdateUserHandler)
+	users.DELETE("/:id", h.DeleteUserHandler)
 
 	return e
 }

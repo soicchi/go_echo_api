@@ -24,3 +24,31 @@ func (u User) Create(db *gorm.DB) error {
 	}
 	return nil
 }
+
+func GetUsers(db *gorm.DB) ([]User, error) {
+	var users []User
+	result := db.Find(&users)
+	if err := result.Error; err != nil {
+		return nil, fmt.Errorf("failed to get users: %w", err)
+	}
+	return users, nil
+}
+
+func (u User) UpdateUser(db *gorm.DB, userID string) error {
+	err := db.Model(&u).Where("id = ?", userID).Update("name", u.Name)
+	if err.Error != nil {
+		return fmt.Errorf("failed to update user: %w", err.Error)
+	}
+
+	return nil
+}
+
+func DeleteUser(db *gorm.DB, userID string) error {
+	var u User
+	err := db.Where("id = ?", userID).Delete(&u)
+	if err.Error != nil {
+		return fmt.Errorf("failed to delete user: %w", err.Error)
+	}
+
+	return nil
+}
